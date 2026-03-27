@@ -37,6 +37,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+	
+    # Librairies tierces
+    'rest_framework',
+    'corsheaders',
+    'django_cleanup.apps.CleanupConfig',
+
+    # Applications perso
+    'apps.accounts',
+    'apps.about',
+    'apps.genealogy',
+    'apps.events',
+    'apps.gallery',
+    'apps.notifications',
 ]
 
 MIDDLEWARE = [
