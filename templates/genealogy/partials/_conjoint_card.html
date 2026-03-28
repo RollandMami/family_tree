@@ -1,0 +1,29 @@
+<div class="person-card card-{{ conjoint.genre|default:'U' }} shadow-sm mx-1 {% if not conjoint.est_en_vie %}person-dead{% endif %}" style="min-width: 170px; max-width: 210px;">
+    {% if conjoint.photo_profil %}
+        <div class="avatar-circle" style="background-image: url('{{ conjoint.photo_profil.url }}');"></div>
+    {% else %}
+        <div class="avatar-circle bg-light d-flex align-items-center justify-content-center fw-bold" style="font-size: 1rem; color: #0d6efd;">{{ conjoint.prenom|slice:":1" }}{{ conjoint.nom|slice:":1" }}</div>
+    {% endif %}
+
+    <div class="person-name">{{ conjoint.prenom }} {{ conjoint.nom }}</div>
+    <div class="person-subtitle">{{ conjoint.genre|default:'Indéfini' }}</div>
+    <div class="person-meta">{{ conjoint.date_naissance|default:'Date inconnue' }}{% if not conjoint.est_en_vie %} • Décédé{% endif %}</div>
+
+    <div class="action-bar">
+        <button class="btn btn-link btn-sm p-0 text-decoration-none" onclick="loadPersonDetails({{ conjoint.id }})" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDetails" title="Infos">
+            <i class="bi bi-info-circle text-primary"></i>
+        </button>
+
+        <button class="btn btn-link btn-sm p-0 text-decoration-none" onclick="openAddModal({{ conjoint.id }}, 'enfant')" title="Ajouter un enfant">
+            <i class="bi bi-plus text-success"></i>
+        </button>
+
+        <button class="btn btn-link btn-sm p-0 text-decoration-none" onclick="openAddModal({{ conjoint.id }}, 'conjoint')" title="Ajouter un conjoint">
+            <i class="bi bi-gem text-info"></i>
+        </button>
+
+        <button class="btn btn-link btn-sm p-0 text-decoration-none" onclick="confirmDelete({{ conjoint.id }})" title="Supprimer">
+            <i class="bi bi-trash text-danger"></i>
+        </button>
+    </div>
+</div>

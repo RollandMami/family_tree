@@ -13,6 +13,22 @@
     {% if personne.surnom %}
         <span class="badge bg-light text-secondary rounded-pill">"{{ personne.surnom }}"</span>
     {% endif %}
+
+    <div class="mt-2">
+        {% if relation == 'admin' %}
+            <span class="badge bg-success">Admin - accès complet</span>
+        {% elif relation == 'moimeme' %}
+            <span class="badge bg-info">Vous</span>
+        {% elif relation == 'frere' %}
+            <span class="badge bg-primary">Frère/Soeur</span>
+        {% elif relation == 'cousin' %}
+            <span class="badge bg-secondary">Cousin(e)</span>
+        {% elif relation == 'niece_neveu' %}
+            <span class="badge bg-warning text-dark">Nièce/Népveu</span>
+        {% else %}
+            <span class="badge bg-dark">Lien distant</span>
+        {% endif %}
+    </div>
 </div>
 
 <hr class="my-4 opacity-50">
@@ -32,20 +48,59 @@
     </div>
 </div>
 
-<div class="mt-4">
+<section class="mt-4">
     <h6 class="fw-bold"><i class="bi bi-info-circle me-2"></i>Biographie</h6>
     <p class="text-secondary small" style="line-height: 1.6; text-align: justify;">
         {{ personne.biographie|default:"Aucune biographie disponible pour le moment."|linebreaksbr }}
     </p>
-</div>
+</section>
+
+{% if relation == 'admin' %}
+    <section class="mt-4 p-3 rounded bg-light border">
+        <h6 class="fw-bold">Coordonnées</h6>
+        <p class="mb-1"><strong>Téléphone:</strong> {{ personne.telephone|default:"Non renseigné" }}</p>
+        <p class="mb-1"><strong>Email:</strong> {{ personne.email|default:"Non renseigné" }}</p>
+        <p class="mb-0"><strong>Adresse:</strong> {{ personne.adresse|default:"Non renseigné" }}</p>
+    </section>
+
+    <section class="mt-3 p-3 rounded bg-light border">
+        <h6 class="fw-bold">Ressources</h6>
+        {% if personne.video_presentation %}
+            <p class="mb-1"><a href="{{ personne.video_presentation }}" target="_blank">Voir la vidéo de présentation</a></p>
+        {% endif %}
+        {% if personne.cv_pdf %}
+            <p class="mb-1"><a href="{{ personne.cv_pdf.url }}" target="_blank">Télécharger le CV</a></p>
+        {% endif %}
+        {% if personne.facebook_url %}
+            <p class="mb-1"><a href="{{ personne.facebook_url }}" target="_blank">Profil Facebook</a></p>
+        {% endif %}
+    </section>
+
+{% elif relation == 'frere' or relation == 'cousin' or relation == 'niece_neveu' %}
+    <section class="mt-4 p-3 rounded bg-light border">
+        <h6 class="fw-bold">Contact rapide</h6>
+        <p class="mb-1"><strong>Téléphone:</strong> {{ personne.telephone|default:"Non renseigné" }}</p>
+        <p class="mb-1"><strong>Facebook:</strong>
+            {% if personne.facebook_url %}
+                <a href="{{ personne.facebook_url }}" target="_blank">Voir profil</a>
+            {% else %}
+                Non renseigné
+            {% endif %}
+        </p>
+        <p class="mb-0"><strong>Situation:</strong> {{ personne.localisation_actuelle|default:"Inconnue" }}</p>
+    </section>
+
+{% else %}
+    <section class="mt-4 p-3 rounded bg-light border">
+        <h6 class="fw-bold">À propos</h6>
+        <p class="mb-1"><strong>Ville:</strong> {{ personne.localisation_actuelle|default:"Inconnue" }}</p>
+        <p class="mb-1"><strong>Profession:</strong> {{ personne.profession|default:"-" }}</p>
+        <p class="mb-0"><strong>Biographie courte:</strong></p>
+        <p class="small text-secondary" style="line-height: 1.4;">{{ personne.biographie|truncatechars:120|default:"Aucune biographie disponible." }}</p>
+    </section>
+{% endif %}
 
 <div class="mt-4 d-grid gap-2">
-    {% if personne.facebook_url %}
-    <a href="{{ personne.facebook_url }}" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill">
-        <i class="bi bi-facebook me-2"></i>Profil Facebook
-    </a>
-    {% endif %}
-    
     {% if user.is_staff %}
     <a href="/admin/genealogy/personne/{{ personne.id }}/change/" class="btn btn-light btn-sm rounded-pill text-muted">
         <i class="bi bi-pencil me-2"></i>Modifier la fiche

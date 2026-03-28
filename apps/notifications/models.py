@@ -6,6 +6,8 @@ class Notification(models.Model):
         ('ANNIVERSAIRE', 'Anniversaire de naissance'),
         ('DECES', 'Commémoration de décès'),
         ('EVENEMENT', 'Événement familial'),
+        ('COMMENTAIRE', 'Commentaire'),
+        ('REACTION', 'Réaction'),
         ('SYSTEME', 'Message système'),
     ]
 

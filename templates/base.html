@@ -49,26 +49,30 @@
                 <div class="offcanvas-body">
                     <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
                         <li class="nav-item">
-                            <a class="nav-link active" href="/"><i class="bi bi-house-door"></i> Accueil</a>
+                            <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="/"><i class="bi bi-house-door"></i> Accueil</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'tree_view' %}"><i class="bi bi-tree"></i> L'Arbre</a>
+                            <a class="nav-link {% if request.path|slice:"0:7" == '/arbre/' %}active{% endif %}" href="{% url 'tree_view' %}"><i class="bi bi-tree"></i> L'Arbre</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#"><i class="bi bi-calendar-event"></i> Événements</a>
+                            <a class="nav-link {% if request.path|slice:"0:14" == '/notifications/' %}active{% endif %}" href="{% url 'notifications_list' %}"><i class="bi bi-bell"></i> Notifications</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="#"><i class="bi bi-info-circle"></i> À propos</a>
+                            <a class="nav-link {% if request.path|slice:"0:8" == '/events/' %}active{% endif %}" href="/events/"><i class="bi bi-calendar-event"></i> Événements</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path|slice:"0:7" == '/about/' %}active{% endif %}" href="{% url 'about' %}"><i class="bi bi-info-circle"></i> À propos</a>
                         </li>
                     </ul>
                     
                     <ul class="navbar-nav">
                         {% if user.is_authenticated %}
                         <li class="nav-item position-relative me-3">
-                            <a class="nav-link" href="#">
+                            <a class="nav-link" href="{% url 'notifications_list' %}">
                                 <i class="bi bi-bell fs-5"></i>
-                                <span class="position-absolute top-1 start-100 translate-middle badge rounded-pill bg-danger">
-                                    3 </span>
+                                {% if unread_notifications_count and unread_notifications_count > 0 %}
+                                    <span class="position-absolute top-1 start-100 translate-middle badge rounded-pill bg-danger">{{ unread_notifications_count }}</span>
+                                {% endif %}
                             </a>
                         </li>
                         <li class="nav-item dropdown">
@@ -77,6 +81,9 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="#">Mon Profil</a></li>
+                                {% if user.is_staff %}
+                                <li><a class="dropdown-item" href="/admin/"><i class="bi bi-shield-lock me-1"></i>Administration</a></li>
+                                {% endif %}
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form action="{% url 'logout' %}" method="post">

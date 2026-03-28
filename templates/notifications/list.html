@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold"><i class="bi bi-bell"></i> Notification Famille</h4>
+            <small class="text-muted">Dernières mises à jour</small>
+        </div>
+
+        {% if notifications %}
+            {% for notif in notifications %}
+                <div class="card mb-3 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h5 class="card-title mb-1">{{ notif.titre }}</h5>
+                                <p class="card-text text-secondary mb-2">{{ notif.message }}</p>
+                            </div>
+                            <span class="badge rounded-pill bg-info text-dark">{{ notif.get_type_notif_display }}</span>
+                        </div>
+                        <p class="small text-muted mb-0">{{ notif.date_creation|date:"d M Y H:i" }} • {{ notif.date_creation|timesince }} ago</p>
+                        {% if notif.lien_url %}
+                        <a href="{{ notif.lien_url }}" class="btn btn-sm btn-outline-primary mt-3">Voir</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="card p-4 text-center">
+                <p class="mb-0 text-muted">Aucune notification pour le moment. Revenez plus tard.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
