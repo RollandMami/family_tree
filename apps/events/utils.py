@@ -1,6 +1,45 @@
 from datetime import date, timedelta
+from io import BytesIO
+
+from django.core.files.base import ContentFile
+from PIL import Image
+
 from apps.genealogy.models import Personne
 from .models import EvenementFamilial
+
+def redimensionner_image_evenement(evenement, max_width=1200, max_height=600):
+    """Redimensionne l'image de l'événement pour tenir dans le cadre."""
+    if not evenement.image:
+        return
+
+    try:
+        image_path = evenement.image.path
+        img = Image.open(image_path)
+
+        # Si déjà dans la taille = rien à faire
+        if img.width <= max_width and img.height <= max_height:
+            return
+
+        img.thumbnail((max_width, max_height), Image.LANCZOS)
+
+        output = BytesIO()
+        format = img.format or 'JPEG'
+        if format.upper() == 'JPG':
+            format = 'JPEG'
+
+        if format.upper() == 'PNG':
+            img.save(output, format='PNG', optimize=True)
+        else:
+            img = img.convert('RGB')
+            img.save(output, format='JPEG', quality=85, optimize=True)
+
+        output.seek(0)
+        evenement.image.save(evenement.image.name, ContentFile(output.read()), save=False)
+        evenement.save(update_fields=['image'])
+    except Exception as e:
+        # En cas d'échec, on ignore pour ne pas bloquer l'enregistrement
+        print('Erreur de redimensionnement image:', e)
+
 
 def obtenir_agenda_proche(jours=5):
     aujourdhui = date.today()

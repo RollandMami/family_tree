@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from apps.notifications.models import Notification
 from .forms import EvenementForm
 from .models import EvenementFamilial, Commentaire, Reaction
+from .utils import redimensionner_image_evenement
 
 @login_required
 def creer_evenement(request):
@@ -14,6 +15,9 @@ def creer_evenement(request):
             evenement.organisateur = request.user # On lie l'auteur
             evenement.save()
             form.save_m2m() # Important pour les participants (Many-to-Many)
+
+            # Redimensionnement image (pour largeur/hauteur raisonnable)
+            redimensionner_image_evenement(evenement, max_width=1200, max_height=600)
 
             # Notification pour tous les utilisateurs concernant le nouvel événement
             for user in User.objects.all():
@@ -65,7 +69,8 @@ def modifier_evenement(request, event_id):
     if request.method == 'POST':
         form = EvenementForm(request.POST, request.FILES, instance=evenement)
         if form.is_valid():
-            form.save()
+            evenement = form.save()
+            redimensionner_image_evenement(evenement, max_width=1200, max_height=600)
             return redirect('home')
     else:
         form = EvenementForm(instance=evenement)
