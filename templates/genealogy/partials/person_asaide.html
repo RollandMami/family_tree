@@ -1,0 +1,35 @@
+<div class="text-center mb-4">
+    {% if personne.photo_profil %}
+        <img src="{{ personne.photo_profil.url }}" class="rounded-circle shadow-sm mb-3" style="width:120px; height:120px; object-fit:cover; border: 4px solid white;">
+    {% endif %}
+    <h4 class="fw-bold mb-0">{{ personne.prenom }} {{ personne.nom }}</h4>
+    <p class="text-muted">{{ personne.surnom|default:"" }}</p>
+</div>
+
+<div class="list-group list-group-flush mb-4">
+    <div class="list-group-item px-0">
+        <small class="text-muted d-block">Profession</small>
+        <span class="fw-medium">{{ personne.profession|default:"Non renseignée" }}</span>
+    </div>
+    <div class="list-group-item px-0">
+        <small class="text-muted d-block">Localisation</small>
+        <span><i class="bi bi-geo-alt"></i> {{ personne.localisation_actuelle|default:"Inconnue" }}</span>
+    </div>
+    <div class="list-group-item px-0">
+        <small class="text-muted d-block">Études</small>
+        <span class="small">{{ personne.etudes|default:"-" }}</span>
+    </div>
+</div>
+
+{% if personne.biographie %}
+<div class="mb-4">
+    <h6 class="fw-bold"><i class="bi bi-journal-text me-2"></i>Biographie</h6>
+    <p class="small text-secondary" style="text-align: justify;">{{ personne.biographie|linebreaks }}</p>
+</div>
+{% endif %}
+
+<div class="d-grid gap-2">
+    <a href="{{ personne.facebook_url }}" class="btn btn-outline-primary btn-sm {% if not personne.facebook_url %}disabled{% endif %}">
+        <i class="bi bi-facebook"></i> Voir le profil Facebook
+    </a>
+</div>

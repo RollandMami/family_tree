@@ -1,0 +1,65 @@
+<li>
+   <div class="person-card card-{{ personne.genre|default:'U' }} shadow-sm">
+    <div class="d-flex align-items-center mb-1">
+        {% if personne.photo_profil %}
+            <img src="{{ personne.photo_profil.url }}" class="rounded-circle me-2" style="width:40px; height:40px; object-fit:cover; border: 1px solid #eee;">
+        {% else %}
+            <div class="rounded-circle bg-light text-primary d-flex align-items-center justify-content-center me-2 fw-bold" 
+                 style="width:40px; height:40px; font-size: 0.8rem; border: 1px solid #dee2e6;">
+                {{ personne.prenom|slice:":1" }}{{ personne.nom|slice:":1" }}
+            </div>
+        {% endif %}
+
+        <div class="text-start">
+            <div class="fw-bold text-dark" style="font-size: 0.9rem; line-height: 1.2;">
+                {{ personne.prenom }}
+            </div>
+            <div class="text-muted text-uppercase small" style="font-size: 0.7rem; letter-spacing: 0.5px;">
+                {{ personne.nom }}
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mt-2 pt-1 border-top">
+        {% if personne.date_naissance %}
+            <div class="text-muted" style="font-size: 0.65rem;">
+                <i class="bi bi-calendar3 me-1"></i>
+                {{ personne.date_naissance|date:"Y" }} 
+                {% if not personne.est_en_vie %} - {{ personne.date_deces|date:"Y"|default:"?" }}{% endif %}
+            </div>
+        {% else %}
+            <span></span> {# Espaceur vide pour maintenir le bouton à droite #}
+        {% endif %}
+
+        <button class="btn btn-link btn-sm p-0 text-decoration-none" 
+                title="Voir les détails"
+                data-bs-toggle="offcanvas" 
+                data-bs-target="#offcanvasDetails"
+                onclick="loadPersonDetails({{ personne.id }})">
+            <i class="bi bi-info-circle text-primary" style="font-size: 0.9rem;"></i>
+        </button>
+    </div>
+</div>
+
+{% if personne.genre == 'M' %}
+    {% with enfants=personne.enfants_bio_pere.all %}
+        {% if enfants %}
+            <ul>
+                {% for enfant in enfants %}
+                    {% include "genealogy/partials/_tree_node.html" with personne=enfant %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+{% elif personne.genre == 'F' %}
+    {% with enfants=personne.enfants_bio_mere.all %}
+        {% if enfants %}
+            <ul>
+                {% for enfant in enfants %}
+                    {% include "genealogy/partials/_tree_node.html" with personne=enfant %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+{% endif %}
+</li>

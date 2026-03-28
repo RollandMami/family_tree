@@ -1,0 +1,54 @@
+<div class="text-center mb-4">
+    {% if personne.photo_profil %}
+        <img src="{{ personne.photo_profil.url }}" class="rounded-circle shadow-sm border border-4 border-white mb-3" 
+             style="width:130px; height:130px; object-fit:cover;">
+    {% else %}
+        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3 shadow-sm" 
+             style="width:130px; height:130px; font-size: 3rem; font-weight: bold;">
+            {{ personne.prenom|slice:":1" }}{{ personne.nom|slice:":1" }}
+        </div>
+    {% endif %}
+    
+    <h3 class="fw-bold mb-0 text-dark">{{ personne.prenom }} {{ personne.nom }}</h3>
+    {% if personne.surnom %}
+        <span class="badge bg-light text-secondary rounded-pill">"{{ personne.surnom }}"</span>
+    {% endif %}
+</div>
+
+<hr class="my-4 opacity-50">
+
+<div class="row g-3">
+    <div class="col-6">
+        <div class="p-2 rounded bg-light">
+            <small class="text-muted d-block text-uppercase" style="font-size: 0.6rem;">Profession</small>
+            <span class="small fw-bold text-truncate d-block">{{ personne.profession|default:"-" }}</span>
+        </div>
+    </div>
+    <div class="col-6">
+        <div class="p-2 rounded bg-light">
+            <small class="text-muted d-block text-uppercase" style="font-size: 0.6rem;">Ville</small>
+            <span class="small fw-bold text-truncate d-block">{{ personne.localisation_actuelle|default:"Inconnue" }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <h6 class="fw-bold"><i class="bi bi-info-circle me-2"></i>Biographie</h6>
+    <p class="text-secondary small" style="line-height: 1.6; text-align: justify;">
+        {{ personne.biographie|default:"Aucune biographie disponible pour le moment."|linebreaksbr }}
+    </p>
+</div>
+
+<div class="mt-4 d-grid gap-2">
+    {% if personne.facebook_url %}
+    <a href="{{ personne.facebook_url }}" target="_blank" class="btn btn-outline-primary btn-sm rounded-pill">
+        <i class="bi bi-facebook me-2"></i>Profil Facebook
+    </a>
+    {% endif %}
+    
+    {% if user.is_staff %}
+    <a href="/admin/genealogy/personne/{{ personne.id }}/change/" class="btn btn-light btn-sm rounded-pill text-muted">
+        <i class="bi bi-pencil me-2"></i>Modifier la fiche
+    </a>
+    {% endif %}
+</div>

@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <h2 class="text-center mb-5 fw-bold">Notre Arbre Généalogique</h2>
+
+    <div class="tree-container">
+        <div class="tree">
+            <ul>
+                {% for ancetre in racines %}
+                    {% include "genealogy/partials/_tree_node.html" with personne=ancetre %}
+                {% empty %}
+                    <p class="text-center text-muted">Aucune donnée généalogique pour le moment.</p>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* CSS de base pour dessiner les lignes de l'arbre */
+    .tree-container {
+        overflow-x: auto;
+        padding: 20px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    .tree ul {
+        padding-top: 20px; position: relative;
+        transition: all 0.5s;
+        display: flex;
+        justify-content: center;
+    }
+    .tree li {
+        float: left; text-align: center;
+        list-style-type: none;
+        position: relative;
+        padding: 20px 5px 0 5px;
+        transition: all 0.5s;
+    }
+    /* Les connecteurs CSS (Lignes) */
+    .tree li::before, .tree li::after {
+        content: '';
+        position: absolute; top: 0; right: 50%;
+        border-top: 2px solid #ccc;
+        width: 50%; height: 20px;
+    }
+    .tree li::after {
+        right: auto; left: 50%;
+        border-left: 2px solid #ccc;
+    }
+    .tree li:only-child::after, .tree li:only-child::before { display: none; }
+    .tree li:only-child { padding-top: 0; }
+    .person-card {
+        border: 2px solid #ccc;
+        padding: 10px;
+        display: inline-block;
+        border-radius: 10px;
+        background: #f9f9f9;
+        min-width: 120px;
+    }
+    .tree-container {
+        overflow-x: auto;
+        padding: 40px;
+        background: #fdfdfd;
+        border-radius: 20px;
+        min-height: 600px;
+    }
+    .tree ul {
+        padding-top: 20px; position: relative;
+        transition: all 0.5s;
+        display: flex;
+        justify-content: center;
+    }
+    .tree li {
+        text-align: center;
+        list-style-type: none;
+        position: relative;
+        padding: 20px 10px 0 10px;
+        transition: all 0.5s;
+    }
+    /* Connecteurs horizontaux */
+    .tree li::before, .tree li::after {
+        content: '';
+        position: absolute; top: 0; right: 50%;
+        border-top: 2px solid #adb5bd;
+        width: 50%; height: 20px;
+    }
+    .tree li::after {
+        right: auto; left: 50%;
+        border-left: 2px solid #adb5bd;
+    }
+    /* Connecteurs verticaux pour les parents */
+    .tree ul ul::before {
+        content: '';
+        position: absolute; top: 0; left: 50%;
+        border-left: 2px solid #adb5bd;
+        width: 0; height: 20px;
+    }
+    /* Suppression des lignes inutiles pour les enfants uniques ou extrêmes */
+    .tree li:only-child::after, .tree li:only-child::before { display: none; }
+    .tree li:only-child { padding-top: 0; }
+    .tree li:first-child::before, .tree li:last-child::after { border: 0 none; }
+    .tree li:last-child::before { border-right: 2px solid #adb5bd; border-radius: 0 5px 0 0; }
+    .tree li:first-child::after { border-radius: 5px 0 0 0; }
+
+    /* Style des cartes de personnes */
+    .person-card {
+        border: 1px solid #dee2e6;
+        padding: 12px;
+        display: inline-block;
+        border-radius: 12px;
+        background: white;
+        min-width: 150px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        transition: transform 0.3s;
+        z-index: 10;
+        position: relative;
+    }
+    .person-card:hover {
+        transform: translateY(-5px);
+        border-color: #0d6efd;
+    }
+    /* Couleurs par genre */
+    .card-M { border-left: 5px solid #0dcaf0 !important; } /* Homme - Bleu */
+    .card-F { border-left: 5px solid #ffc107 !important; } /* Femme - Or/Rose */
+</style>
+<script>
+function loadPersonDetails(personId) {
+    const content = document.getElementById('details-content');
+    // On affiche un spinner le temps du chargement
+    content.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+    
+    // Appel AJAX vers la vue de détails
+    fetch(`/arbre/details/${personId}/`)
+        .then(response => response.text())
+        .then(html => {
+            content.innerHTML = html;
+        })
+        .catch(err => {
+            content.innerHTML = '<p class="text-danger">Erreur lors du chargement des détails.</p>';
+        });
+}
+</script>
+{% endblock %}

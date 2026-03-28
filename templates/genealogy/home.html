@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold">Fil d'actualité</h4>
+            <a href="#" class="btn btn-primary btn-sm rounded-pill px-3">
+                <i class="bi bi-plus-lg"></i> Publier
+            </a>
+        </div>
+
+        {% for event in feed_events %}
+        <div class="card event-card mb-4">
+            <div class="card-header bg-white border-0 d-flex align-items-center pt-3">
+                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
+                    {{ event.organisateur.username|slice:":1"|upper }}
+                </div>
+                <div>
+                    <h6 class="mb-0 fw-bold">{{ event.organisateur.username }}</h6>
+                    <small class="text-muted">{{ event.date_evenement|date:"d F Y" }} • {{ event.get_type_evt_display }}</small>
+                </div>
+            </div>
+            <div class="card-body">
+                <h5 class="card-title">{{ event.titre }}</h5>
+                <p class="card-text text-secondary">{{ event.description|truncatewords:30 }}</p>
+                
+                {% if event.lieu %}
+                <p class="small text-muted"><i class="bi bi-geo-alt"></i> {{ event.lieu }}</p>
+                {% endif %}
+            </div>
+            <div class="card-footer bg-white border-top-0 pb-3">
+                <div class="d-flex gap-2">
+                    <button class="btn btn-light btn-sm flex-grow-1"><i class="bi bi-hand-thumbs-up"></i> Intéressé</button>
+                    <button class="btn btn-light btn-sm flex-grow-1"><i class="bi bi-chat"></i> Commenter</button>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center py-5 bg-white rounded shadow-sm">
+            <i class="bi bi-camera-reels fs-1 text-muted"></i>
+            <p class="mt-2">Aucun événement pour le moment. Soyez le premier à publier !</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="col-lg-4">
+        <div class="sticky-top" style="top: 85px;">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-gift text-danger"></i> Anniversaires J-5</h6>
+                    {% if anniversaires %}
+                        {% for perso in anniversaires %}
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="p-2 bg-light rounded-circle me-3">🎂</div>
+                            <div>
+                                <p class="mb-0 fw-bold">{{ perso.prenom }} {{ perso.nom }}</p>
+                                <small class="text-muted">Le {{ perso.date_naissance|date:"d F" }}</small>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="small text-muted">Rien de prévu cette semaine.</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if commemorations %}
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-heart-fill text-primary"></i> À la mémoire de...</h6>
+                    {% for perso in commemorations %}
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-stars me-2 text-warning"></i>
+                        <span class="small">{{ perso.prenom }} {{ perso.nom }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+<button type="button" class="btn btn-primary rounded-pill px-4 mb-4" data-bs-toggle="modal" data-bs-target="#modalEvenement">
+    <i class="bi bi-plus-lg"></i> Quoi de neuf dans la famille ?
+</button>
+
+<div class="modal fade" id="modalEvenement" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-bold" id="modalLabel text-primary">Créer un événement</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form action="{% url 'creer_evenement' %}" method="POST">
+        {% csrf_token %}
+        <div class="modal-body">
+            {{ form_event.as_p }}
+        </div>
+        <div class="modal-footer border-0">
+            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+            <button type="submit" class="btn btn-primary px-4">Publier</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
