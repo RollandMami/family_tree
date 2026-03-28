@@ -4,7 +4,7 @@ from .models import EvenementFamilial
 class EvenementForm(forms.ModelForm):
     class Meta:
         model = EvenementFamilial
-        fields = ['titre', 'type_evt', 'date_evenement', 'lieu', 'description', 'participants']
+        fields = ['titre', 'type_evt', 'date_evenement', 'lieu', 'description', 'participants', 'image']
         widgets = {
             'titre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: Baptême de mon fils'}),
             'type_evt': forms.Select(attrs={'class': 'form-select'}),
@@ -13,3 +13,7 @@ class EvenementForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'participants': forms.SelectMultiple(attrs={'class': 'form-select'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['participants'].required = False

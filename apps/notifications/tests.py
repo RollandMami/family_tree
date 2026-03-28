@@ -65,8 +65,8 @@ class NotificationTests(TestCase):
         Notification.objects.create(destinataire=self.user1, titre='Test', message='Test', type_notif='SYSTEME')
         self.client.login(username='alice', password='pass')
         response = self.client.get(reverse('home'))
-        self.assertContains(response, 'badge')
-        self.assertContains(response, '1')
+        self.assertContains(response, 'badge rounded-pill bg-danger')
+        self.assertContains(response, '>1<')
 
     def test_notifications_page_accessible(self):
         self.client.login(username='alice', password='pass')

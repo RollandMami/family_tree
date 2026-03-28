@@ -13,3 +13,7 @@ def register(request):
     else:
         form = InscriptionForm()
     return render(request, 'accounts/register.html', {'form': form})
+
+
+def profile(request):
+    return render(request, 'accounts/profile.html', {'user': request.user})

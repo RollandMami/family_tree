@@ -19,6 +19,7 @@ class EvenementFamilial(models.Model):
     date_evenement = models.DateField()
     description = models.TextField(blank=True)
     lieu = models.CharField(max_length=255, blank=True)
+    image = models.ImageField(upload_to='events/images/', blank=True, null=True)
     
     # Un événement peut concerner plusieurs personnes (ex: deux mariés)
     participants = models.ManyToManyField(Personne, related_name='evenements_lies')

@@ -55,12 +55,6 @@
                             <a class="nav-link {% if request.path|slice:"0:7" == '/arbre/' %}active{% endif %}" href="{% url 'tree_view' %}"><i class="bi bi-tree"></i> L'Arbre</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.path|slice:"0:14" == '/notifications/' %}active{% endif %}" href="{% url 'notifications_list' %}"><i class="bi bi-bell"></i> Notifications</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.path|slice:"0:8" == '/events/' %}active{% endif %}" href="/events/"><i class="bi bi-calendar-event"></i> Événements</a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link {% if request.path|slice:"0:7" == '/about/' %}active{% endif %}" href="{% url 'about' %}"><i class="bi bi-info-circle"></i> À propos</a>
                         </li>
                     </ul>
@@ -71,7 +65,7 @@
                             <a class="nav-link" href="{% url 'notifications_list' %}">
                                 <i class="bi bi-bell fs-5"></i>
                                 {% if unread_notifications_count and unread_notifications_count > 0 %}
-                                    <span class="position-absolute top-1 start-100 translate-middle badge rounded-pill bg-danger">{{ unread_notifications_count }}</span>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ unread_notifications_count }}</span>
                                 {% endif %}
                             </a>
                         </li>
@@ -80,7 +74,7 @@
                                 <i class="bi bi-person-circle"></i> {{ user.username }}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#">Mon Profil</a></li>
+                                <li><a class="dropdown-item" href="{% url 'profile' %}">Mon Profil</a></li>
                                 {% if user.is_staff %}
                                 <li><a class="dropdown-item" href="/admin/"><i class="bi bi-shield-lock me-1"></i>Administration</a></li>
                                 {% endif %}

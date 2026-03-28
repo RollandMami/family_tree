@@ -21,13 +21,19 @@
                     <small class="text-muted">{{ event.date_evenement|date:"d F Y" }} • {{ event.get_type_evt_display }}</small>
                 </div>
             </div>
+            {% if event.image %}
+            <img src="{{ event.image.url }}" alt="Photo événement" class="card-img-top" style="max-height: 260px; object-fit: cover;">
+            {% endif %}
             <div class="card-body">
                 <h5 class="card-title">{{ event.titre }}</h5>
-                <p class="card-text text-secondary">{{ event.description|truncatewords:30 }}</p>
-                
+                <p class="card-text text-secondary">{{ event.description|truncatewords:40 }}</p>
                 {% if event.lieu %}
                 <p class="small text-muted"><i class="bi bi-geo-alt"></i> {{ event.lieu }}</p>
                 {% endif %}
+                <div class="mb-2">
+                    <span class="badge bg-info text-dark me-1">{{ event.reactions.count }} réactions</span>
+                    <span class="badge bg-secondary">{{ event.commentaires.count }} commentaires</span>
+                </div>
             </div>
             <div class="card-footer bg-white border-top-0 pb-3">
                 <div class="d-flex justify-content-between align-items-center mb-2 small text-muted">
@@ -35,24 +41,61 @@
                     <span><i class="bi bi-emoji-smile"></i> {{ event.reactions.count }} réactions</span>
                 </div>
                 <div class="d-flex gap-2 mb-2">
+                    <button type="button" class="btn btn-light btn-sm flex-grow-1 btn-show-comments" data-event-id="{{ event.id }}"><i class="bi bi-chat-left"></i> Voir les commentaires</button>
                     <form class="d-inline" method="post" action="{% url 'reacter_evenement' event.id %}">
                         {% csrf_token %}
                         <input type="hidden" name="type_reaction" value="LIKE">
                         <button type="submit" class="btn btn-light btn-sm flex-grow-1"><i class="bi bi-hand-thumbs-up"></i> J'aime</button>
                     </form>
-                    <form class="d-inline" method="post" action="{% url 'reacter_evenement' event.id %}">
+                    {% if user == event.organisateur or user.is_staff or user.is_superuser %}
+                        <a href="{% url 'modifier_evenement' event.id %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-pencil"></i> Modifier</a>
+                    {% endif %}
+                    {% if user.is_staff or user.is_superuser %}
+                    <form class="d-inline" method="post" action="{% url 'supprimer_evenement' event.id %}" onsubmit="return confirm('Supprimer cette publication ?');">
                         {% csrf_token %}
-                        <input type="hidden" name="type_reaction" value="LOVE">
-                        <button type="submit" class="btn btn-light btn-sm flex-grow-1"><i class="bi bi-heart"></i> J'adore</button>
+                        <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i> Supprimer</button>
+                    </form>
+                    {% endif %}
+                </div>
+                <div id="comment-section-{{ event.id }}" class="event-comment-section d-none">
+                    {% for comment in event.commentaires.all %}
+                    <div class="d-flex align-items-start mb-2">
+                        <div class="me-2" style="width:40px; height:40px;">
+                            {% if comment.auteur.profile and comment.auteur.profile.personne and comment.auteur.profile.personne.photo_profil_url %}
+                            <img src="{{ comment.auteur.profile.personne.photo_profil_url }}" class="rounded-circle" style="width:40px; height:40px; object-fit:cover;" alt="{{ comment.auteur.username }}">
+                            {% else %}
+                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center" style="width:40px; height:40px;">{{ comment.auteur.username|slice:":1"|upper }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1">
+                            <strong>{{ comment.auteur.username }}</strong>
+                            <p id="comment-text-{{ comment.id }}" class="mb-1">{{ comment.texte }}</p>
+                            {% if user == comment.auteur or user.is_staff or user.is_superuser %}
+                                <a href="#" class="small edit-comment-link" data-comment-id="{{ comment.id }}">Modifier</a>
+                            {% endif %}
+                            <form id="edit-comment-form-{{ comment.id }}" action="{% url 'modifier_commentaire' comment.id %}" method="post" class="d-none mt-2">
+                                {% csrf_token %}
+                                <div class="input-group input-group-sm">
+                                    <input type="text" name="texte" value="{{ comment.texte|escape }}" class="form-control" required>
+                                    <button type="submit" class="btn btn-primary">Sauvegarder</button>
+                                    <button type="button" class="btn btn-outline-secondary cancel-comment-edit" data-comment-id="{{ comment.id }}">Annuler</button>
+                                </div>
+                            </form>
+                            <small class="text-muted">{{ comment.date_creation|timesince }} ago</small>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted small mb-2">Aucun commentaire pour l'instant.</p>
+                    {% endfor %}
+
+                    <form method="post" action="{% url 'commenter_evenement' event.id %}">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="text" name="texte" class="form-control form-control-sm" placeholder="Ajoutez un commentaire..." required>
+                            <button class="btn btn-outline-secondary btn-sm" type="submit">Envoyer</button>
+                        </div>
                     </form>
                 </div>
-                <form method="post" action="{% url 'commenter_evenement' event.id %}">
-                    {% csrf_token %}
-                    <div class="input-group">
-                        <input type="text" name="texte" class="form-control form-control-sm" placeholder="Ajoutez un commentaire..." required>
-                        <button class="btn btn-outline-secondary btn-sm" type="submit">Envoyer</button>
-                    </div>
-                </form>
             </div>
         </div>
         {% empty %}
@@ -124,6 +167,50 @@
     <i class="bi bi-plus-lg"></i> Quoi de neuf dans la famille ?
 </button>
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.btn-show-comments').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var eventId = this.getAttribute('data-event-id');
+            var section = document.getElementById('comment-section-' + eventId);
+            if (section) {
+                section.classList.toggle('d-none');
+                if (section.classList.contains('d-none')) {
+                    this.innerHTML = '<i class="bi bi-chat-left"></i> Voir les commentaires';
+                } else {
+                    this.innerHTML = '<i class="bi bi-chat-left"></i> Masquer les commentaires';
+                }
+            }
+        });
+    });
+
+    document.querySelectorAll('.edit-comment-link').forEach(function (link) {
+        link.addEventListener('click', function (e) {
+            e.preventDefault();
+            var commentId = this.getAttribute('data-comment-id');
+            var form = document.getElementById('edit-comment-form-' + commentId);
+            var texte = document.getElementById('comment-text-' + commentId);
+            if (form && texte) {
+                form.classList.toggle('d-none');
+                texte.classList.toggle('d-none');
+            }
+        });
+    });
+
+    document.querySelectorAll('.cancel-comment-edit').forEach(function (button) {
+        button.addEventListener('click', function () {
+            var commentId = this.getAttribute('data-comment-id');
+            var form = document.getElementById('edit-comment-form-' + commentId);
+            var texte = document.getElementById('comment-text-' + commentId);
+            if (form && texte) {
+                form.classList.add('d-none');
+                texte.classList.remove('d-none');
+            }
+        });
+    });
+});
+</script>
+
 <div class="modal fade" id="modalEvenement" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content border-0 shadow">
@@ -131,10 +218,14 @@
         <h5 class="modal-title fw-bold" id="modalLabel text-primary">Créer un événement</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form action="{% url 'creer_evenement' %}" method="POST">
+      <form action="{% url 'creer_evenement' %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="modal-body">
             {{ form_event.as_p }}
+            <div class="mb-3">
+                <label for="id_image" class="form-label">Image (optionnel)</label>
+                <input type="file" class="form-control" name="image" id="id_image" accept="image/*">
+            </div>
         </div>
         <div class="modal-footer border-0">
             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
